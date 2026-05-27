@@ -1,60 +1,85 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="en">
 
-import { initializeApp }
+<head>
 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+<meta charset="UTF-8">
 
-import {
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-getFirestore,
-collection,
-getDocs,
-deleteDoc,
-doc
+<title>Marketplace</title>
 
-}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+rel="stylesheet">
 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<link rel="stylesheet" href="style.css">
 
-const firebaseConfig = {
+</head>
 
-apiKey: "AIzaSyDSPblynHGiZc9fiOorlsD7JK1HWWaivaw",
+<body>
 
-authDomain: "muj-campus-connect.firebaseapp.com",
+<nav class="navbar navbar-dark bg-dark">
 
-projectId: "muj-campus-connect",
+<div class="container">
 
-storageBucket: "muj-campus-connect.firebasestorage.app",
+<a class="navbar-brand fw-bold"
+href="dashboard.html">
 
-messagingSenderId: "1018135323599",
+MUJ Campus Connect
 
-appId: "1:1018135323599:web:6a70c9b10b3b4b99ef28ba",
+</a>
 
-measurementId: "G-Q8VNXYK9LG"
+<div class="d-flex gap-2">
 
-};
+<a href="dashboard.html"
+class="btn btn-outline-light">
 
-const app = initializeApp(firebaseConfig);
+Dashboard
 
-const db = getFirestore(app);
+</a>
 
-const productList =
-document.getElementById("productList");
+<a href="add-product.html?type=sell"
+class="btn btn-success">
 
-async function loadProducts(){
++ Add Product For Sale
 
-const querySnapshot =
-await getDocs(collection(db, "products"));
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<div class="container py-5">
+
+<h1 class="mb-5">
+Marketplace
+</h1>
+
+<div class="row g-4"
+id="productList">
+
+</div>
+
+</div>
+
+<script>
+
+let productList = document.getElementById("productList");
+
+function loadProducts(){
+
+let products =
+JSON.parse(localStorage.getItem("products")) || [];
 
 productList.innerHTML = "";
 
-querySnapshot.forEach((firebaseDoc) => {
+let sellProducts =
+products.filter(product => product.type === "sell");
 
-const product = firebaseDoc.data();
-
-const productId = firebaseDoc.id;
-
-if(product.type === "sell"){
+sellProducts.forEach(product => {
 
 productList.innerHTML += `
 
@@ -62,8 +87,7 @@ productList.innerHTML += `
 
 <div class="card product-card h-100">
 
-<img src="${product.image}"
-class="card-img-top">
+<img src="${product.image}">
 
 <div class="card-body d-flex flex-column">
 
@@ -85,9 +109,8 @@ Category: ${product.category}
 ${product.description}
 </p>
 
-<button
-class="btn btn-success"
-onclick="buyProduct('${productId}')">
+<button class="btn btn-success"
+onclick="buyProduct(${product.id})">
 
 Buy Now
 
@@ -101,38 +124,28 @@ Buy Now
 
 `;
 
-}
-
 });
 
 }
 
-window.buyProduct = async function(productId){
+function buyProduct(id){
 
-try{
+let products =
+JSON.parse(localStorage.getItem("products")) || [];
 
-await deleteDoc(doc(db, "products", productId));
+products =
+products.filter(product => product.id !== id);
 
-Swal.fire({
-icon:'success',
-title:'Product Purchased'
-});
+localStorage.setItem("products",
+JSON.stringify(products));
 
 loadProducts();
-
-}
-
-catch(error){
-
-Swal.fire({
-icon:'error',
-title:error.message
-});
-
-}
 
 }
 
 loadProducts();
 
 </script>
+
+</body>
+</html>
